@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Idea Board</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+    #IdeaListTemplate {
+     display: none
+    }
+    </style>
+  </head>
+  <body>
+    <div id = "IdeaListTemplate">
+      <div class="row" id="row-0">
+        <a id = "0" data-toggle="collapse" data-target="#div0" class="list-group-item col-sm-11">dicks</a>
+        <button type="button" class="btn btn-default btn-s col-sm-1" onClick=toggleTitleClick() id="edit-title-0">Edit Title</button>
+      </div>
+      <div id = "div0" class="collapse">
+        <textarea class="form-control" rows="5" id="idea-text-0" disabled></textarea>
+        <div class="row">
+          <button type="button" id = "button-0" class="btn btn-default btn-s col-sm-6" onClick=toggleBodyClick(id)>Click to edit</button>
+          <button type="button" class="btn btn-default btn-s col-sm-6" id = "" onClick=saveIdea(id) disabled>Click to save changes</button>
+        </div>
+      </div>
+    </div>
+    <div class="list-group" id = "list"></div>
+    <script>
+      var ideaData;
+      $.get("/datasheet", function(req, res) {
+          ideaData=req;createIdeas();
+          console.log(ideaData);
+          });
+      function toggleBodyClick(id){
+        document.getElementById("body-"+id).disabled ^= true;
+        document.getElementById("save-"+id).disabled ^= true;
+      }
+      function toggleTitleClick(){
+      }
+      function createIdeas(){
+        var x;
+        for (x in ideaData.idea){
+          var clone = document.getElementById("IdeaListTemplate");
+          var save = clone.cloneNode(true);
+          save.setAttribute("id", "idea-" + x);
+          var children = save.childNodes;
+          console.log(save);
+          console.log(children[3].childNodes[3].childNodes[3]);
+          children[1].childNodes[1].setAttribute("id", "title-"+x);
+          children[3].childNodes[1].setAttribute("id", "body-"+x);
+          children[3].childNodes[3].childNodes[1].setAttribute("id", x);
+          children[3].childNodes[3].childNodes[3].setAttribute("id", "save-"+x);
+          children[3].setAttribute("id","col-"+x)
+          document.getElementById("list").appendChild(save);
+          document.getElementById("title-"+x).innerHTML = ideaData.idea[x].title
+          document.getElementById("title-"+x).setAttribute("data-target","#col-"+x);
+          document.getElementById("body-"+x).innerHTML = ideaData.idea[x].body
+        }
+      }
+      function saveIdea(id){
+        console.log(id)
+        x = id.replace("save-","");
+        console.log(document.getElementById("body-"+x).value)
+        ideaData.idea[x].body = document.getElementById("body-"+x).value
+        document.getElementById("body-"+x).disabled ^= true;
+        document.getElementById("save-"+x).disabled ^= true;
+        strData = JSON.stringify(ideaData);
+        console.log(strData);
+        $.post("/writedata", ideaData, ()=>console.log("Sent: " + strData));
+      }
+    </script>
+  </body>
+</html>
