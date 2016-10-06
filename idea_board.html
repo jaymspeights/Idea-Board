@@ -30,6 +30,7 @@
       </div>
     </div>
     <div class="list-group" id = "list"></div>
+    <button type="button" class"btn btn-default" onClick=addIdea() id = "button-add">New Idea</button>
     <script>
       var ideaData;
       $.get("/datasheet", function(req, res) {
@@ -45,12 +46,11 @@
       function createIdeas(){
         var x;
         for (x in ideaData.idea){
+          console.log(x)
           var clone = document.getElementById("IdeaListTemplate");
           var save = clone.cloneNode(true);
           save.setAttribute("id", "idea-" + x);
           var children = save.childNodes;
-          console.log(save);
-          console.log(children[3].childNodes[3].childNodes[3]);
           children[1].childNodes[1].setAttribute("id", "title-"+x);
           children[3].childNodes[1].setAttribute("id", "body-"+x);
           children[3].childNodes[3].childNodes[1].setAttribute("id", x);
@@ -63,15 +63,35 @@
         }
       }
       function saveIdea(id){
-        console.log(id)
         x = id.replace("save-","");
-        console.log(document.getElementById("body-"+x).value)
         ideaData.idea[x].body = document.getElementById("body-"+x).value
         document.getElementById("body-"+x).disabled ^= true;
         document.getElementById("save-"+x).disabled ^= true;
         strData = JSON.stringify(ideaData);
-        console.log(strData);
         $.post("/writedata", ideaData, ()=>console.log("Sent: " + strData));
+      }
+      function addIdea(){
+        var x=0;
+        for (var count in ideaData.idea){
+            console.log(x + ", 1");
+            x = x+1;
+            console.log(x+", 2");
+        }
+        var clone = document.getElementById("IdeaListTemplate");
+        var save = clone.cloneNode(true);
+        console.log(x)
+        save.setAttribute("id", "idea-" + x);
+        var children = save.childNodes;
+        children[1].childNodes[1].setAttribute("id", "title-"+x);
+        children[3].childNodes[1].setAttribute("id", "body-"+x);
+        children[3].childNodes[3].childNodes[1].setAttribute("id", x);
+        children[3].childNodes[3].childNodes[3].setAttribute("id", "save-"+x);
+        children[3].setAttribute("id","col-"+x)
+        document.getElementById("list").appendChild(save);
+        document.getElementById("title-"+x).innerHTML = "New Idea";
+        document.getElementById("title-"+x).setAttribute("data-target","#col-"+x);
+        document.getElementById("body-"+x).innerHTML = "Idea Description";
+        ideaData.idea[x] = {title: "New Idea", body: "Idea Description"};
       }
     </script>
   </body>
